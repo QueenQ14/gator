@@ -12,20 +12,20 @@ type Config struct {
 	UserName string `json:"current_user_name"`
 }
 
-func Read() (Config) {
+func Read() (Config, error) {
 	path, err := getConfigFilePath()
 	if err != nil {
-		return Config{}
+		return Config{}, err
 	}
 	config_data, err := os.ReadFile(path)
 	if err != nil {
-		return Config{}
+		return Config{}, err
 	}
 	var config Config
 	if err := json.Unmarshal(config_data, &config); err != nil {
-		return Config{}
+		return Config{}, err
 	}
-	return config
+	return config, nil
 }
 
 func (cfg *Config) SetUser(user string) error {
