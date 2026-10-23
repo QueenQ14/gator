@@ -2,6 +2,11 @@ package main
 
 import "errors"
 
+type command struct {
+	name string
+	args []string
+}
+
 type commands struct {
 	registeredCommands map[string]func(*state, command) error
 }
