@@ -47,7 +47,7 @@ func handlerRegister(s *state, cmd command) error {
 }
 
 func handlerReset(s *state, cmd command) error {
-	err := s.db.ResetUsers(context.Background())
+	err := s.db.DeleteUsers(context.Background())
 	if err != nil {
 		return err
 	}
@@ -103,5 +103,20 @@ func handlerAddfeed(s *state, cmd command) error {
 		return fmt.Errorf("error creating feed: %v", err)
 	}
 	fmt.Printf("Feed: %v\n", feed)
+	return nil
+}
+
+func handlerListFeeds(s *state, cmd command) error {
+	feeds, err := s.db.GetFeeds(context.Background())
+	if err != nil {
+		return fmt.Errorf("error fetching feeds: %v", err)
+	}
+	for _, feed := range feeds {
+		user, err := s.db.GetUserByID(context.Background(), feed.UserID)
+		if err != nil {
+			return fmt.Errorf("error retrieving user for feed: %v", feed.Name)
+		}
+		printfeed(feed, user)
+	}
 	return nil
 }
