@@ -35,17 +35,8 @@ func main() {
 	cmds := commands{
 		registeredCommands: make(map[string]func(*state, command) error),
 	}
-	cmds.register("login", handlerLogin)
-	cmds.register("register", handlerRegister)
-	cmds.register("reset", handlerReset)
-	cmds.register("users", handlerUsers)
-	cmds.register("agg", handlerAggregator)
-	cmds.register("addfeed", middlewareLoggedIn(handlerAddfeed))
-	cmds.register("feeds", handlerListFeeds)
-	cmds.register("follow", middlewareLoggedIn(handlerFollow))
-	cmds.register("following", middlewareLoggedIn(handlerFollowing))
-	cmds.register("unfollow", middlewareLoggedIn(handlerUnfollow))
-	cmds.register("browse", middlewareLoggedIn(handlerBrowse))
+	registerAllCommands(&cmds)
+
 	main_args := os.Args
 	if len(main_args) < 2 {
 		fmt.Println("not enough arguments were provided")
