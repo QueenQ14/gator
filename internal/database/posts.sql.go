@@ -77,12 +77,13 @@ WHERE
     feed_follows.user_id = $1
 ORDER BY
     posts.published_at DESC
-LIMIT $2
+LIMIT $2 OFFSET $3
 `
 
 type GetPostsForUserParams struct {
 	UserID uuid.UUID
 	Limit  int32
+	Offset int32
 }
 
 type GetPostsForUserRow struct {
@@ -98,7 +99,7 @@ type GetPostsForUserRow struct {
 }
 
 func (q *Queries) GetPostsForUser(ctx context.Context, arg GetPostsForUserParams) ([]GetPostsForUserRow, error) {
-	rows, err := q.db.QueryContext(ctx, getPostsForUser, arg.UserID, arg.Limit)
+	rows, err := q.db.QueryContext(ctx, getPostsForUser, arg.UserID, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
