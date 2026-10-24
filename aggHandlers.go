@@ -4,7 +4,9 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/QueenQ14/gator/internal/database"
@@ -13,27 +15,52 @@ import (
 )
 
 func handlerAggregator(s *state, cmd command) error {
-	if len(cmd.args) != 1 {
-		return fmt.Errorf("Usage: %s <time>", cmd.name)
+	if len(cmd.args) < 1 || len(cmd.args) > 2 {
+		return fmt.Errorf("Usage: %s <time> [concurrency] <- default=3", cmd.name)
 	}
 	time_between_reqs := cmd.args[0]
 	timeBetweenRequests, err := time.ParseDuration(time_between_reqs)
 	if err != nil {
 		return fmt.Errorf("please enter valid time value: %v", err)
 	}
+	concurrency := 3
+	if len(cmd.args) == 2 {
+		parsedConcurrency, err := strconv.Atoi(cmd.args[1])
+		if err != nil {
+			return fmt.Errorf("invalid concurrency value: %v", err)
+		}
+		if parsedConcurrency <= 0 {
+			return fmt.Errorf("concurrency value must be greater than 0")
+		}
+		concurrency = parsedConcurrency
+	}
 	ticker := time.NewTicker(timeBetweenRequests)
-	fmt.Printf("Collecting feeds every %v...\n", timeBetweenRequests)
+	defer ticker.Stop()
+	fmt.Printf("Collecting feeds every %v with %d workers...\n", timeBetweenRequests, concurrency)
 	for ; ; <-ticker.C {
-		scrapeFeeds(s)
+		fmt.Println("refreshing...")
+		feeds, err := s.db.GetNextFeedsToFetch(context.Background(), int32(concurrency))
+		if err != nil {
+			fmt.Println("Error fetching feeds:", err)
+			continue
+		}
+
+		var wg sync.WaitGroup
+		for _, feed := range feeds {
+			wg.Add(1)
+			go func(f database.Feed) {
+				defer wg.Done()
+				if err := scrapeFeed(s, f); err != nil {
+					fmt.Printf("Error scraping %s: %v\n", f.Name, err)
+				}
+			}(feed)
+		}
+		wg.Wait()
 	}
 }
 
-func scrapeFeeds(s *state) error {
-	feed, err := s.db.GetNextFeedToFetch(context.Background())
-	if err != nil {
-		return fmt.Errorf("error fetching next feed: %v", err)
-	}
-	err = s.db.MarkFeedFetched(context.Background(), feed.ID)
+func scrapeFeed(s *state, feed database.Feed) error {
+	err := s.db.MarkFeedFetched(context.Background(), feed.ID)
 	if err != nil {
 		return fmt.Errorf("error marking the feed as fetched: %v", err)
 	}
@@ -43,13 +70,15 @@ func scrapeFeeds(s *state) error {
 	}
 	for _, item := range rssFeed.Channel.Item {
 		publish_date, err := time.Parse(time.RFC1123Z, item.PubDate)
-		nt := sql.NullTime{}
 		if err != nil {
-			nt = sql.NullTime{Valid: false}
+			publish_date, err = time.Parse(time.RFC1123, item.PubDate)
 		}
-		nt = sql.NullTime{
+		nt := sql.NullTime{}
+		if err == nil {
+			nt = sql.NullTime{
 			Time:  publish_date,
 			Valid: true,
+			}
 		}
 		desc := sql.NullString{Valid: false}
 		if item.Description != "" {
@@ -74,7 +103,7 @@ func scrapeFeeds(s *state) error {
 			if strings.Contains(err.Error(), "duplicate key") || strings.Contains(err.Error(), "unique constraint") {
 				continue
 			}
-			fmt.Printf("couldn't create post: %v", err)
+			fmt.Printf("couldn't create post: %v\n", err)
 			continue
 		}
 	}

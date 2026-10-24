@@ -62,7 +62,7 @@ func handlerBrowse(s *state, cmd command, user database.User) error {
 	if len(cmd.args) > 0 {
 		parsedLimit, err := strconv.Atoi(cmd.args[0])
 		if err != nil {
-			return fmt.Errorf("Usage: %s <limit(int)>",cmd.name)
+			return fmt.Errorf("Usage: %s [limit] <- default=2", cmd.name)
 		}
 		limit = parsedLimit
 	}
