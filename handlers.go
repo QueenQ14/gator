@@ -44,3 +44,12 @@ func handlerRegister(s *state, cmd command) error {
 	fmt.Println(val.ID, " | ", val.CreatedAt, " | ", val.UpdatedAt, " | ", val.Name)
 	return s.Config.SetUser(val.Name)
 }
+
+func handlerReset(s *state, cmd command) error {
+	err := s.db.ResetUsers(context.Background())
+	if err != nil {
+		return err
+	}
+	fmt.Println("the users have been reset")
+	return nil
+}
