@@ -1,0 +1,72 @@
+package main
+
+import (
+	"context"
+	"fmt"
+	"time"
+
+	"github.com/QueenQ14/gator/internal/database"
+	"github.com/QueenQ14/gator/internal/rss"
+	"github.com/google/uuid"
+)
+
+func handlerAggregator(s *state, cmd command) error {
+	feedURL := "https://www.wagslane.dev/index.xml"
+	feed, err := rss.FetchFeed(context.Background(), feedURL)
+	if err != nil {
+		return err
+	}
+	fmt.Printf("Feed: %v\n", feed)
+	return nil
+}
+
+func handlerAddfeed(s *state, cmd command) error {
+	if len(cmd.args) != 2 {
+		return fmt.Errorf("please enter valid arguments")
+	}
+	title := cmd.args[0]
+	feedURL := cmd.args[1]
+	current_user, err := s.db.GetUser(context.Background(), s.Config.UserName)
+	if err != nil {
+		return fmt.Errorf("error fetching user: %v", err)
+	}
+	params := database.CreateFeedParams{
+		ID:        uuid.New(),
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+		Name:      title,
+		Url:       feedURL,
+		UserID:    current_user.ID,
+	}
+	feed, err := s.db.CreateFeed(context.Background(), params)
+	if err != nil {
+		return fmt.Errorf("error creating feed: %v", err)
+	}
+	row, err := s.db.CreateFeedFollow(context.Background(), database.CreateFeedFollowParams{
+		ID:        uuid.New(),
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+		UserID:    current_user.ID,
+		FeedID:    feed.ID,
+	})
+	if err != nil {
+		return fmt.Errorf("error creating feed-follow: %v", err)
+	}
+	fmt.Println(row)
+	return nil
+}
+
+func handlerListFeeds(s *state, cmd command) error {
+	feeds, err := s.db.GetFeeds(context.Background())
+	if err != nil {
+		return fmt.Errorf("error fetching feeds: %v", err)
+	}
+	for _, feed := range feeds {
+		user, err := s.db.GetUserByID(context.Background(), feed.UserID)
+		if err != nil {
+			return fmt.Errorf("error retrieving user for feed: %v", feed.Name)
+		}
+		printfeed(feed, user)
+	}
+	return nil
+}
