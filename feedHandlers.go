@@ -10,22 +10,6 @@ import (
 	"github.com/google/uuid"
 )
 
-func handlerAggregator(s *state, cmd command) error {
-	if len(cmd.args) != 1 {
-		return fmt.Errorf("Usage: %s <time>", cmd.name)
-	}
-	time_between_reqs := cmd.args[0]
-	timeBetweenRequests, err := time.ParseDuration(time_between_reqs)
-	if err != nil {
-		return fmt.Errorf("please enter valid time value: %v", err)
-	}
-	ticker := time.NewTicker(timeBetweenRequests)
-	fmt.Printf("Collecting feeds every %v...\n", timeBetweenRequests)
-	for ; ; <-ticker.C {
-		scrapeFeeds(s)
-	}
-}
-
 func handlerAddfeed(s *state, cmd command, user database.User) error {
 	if len(cmd.args) != 2 {
 		return fmt.Errorf("Usage: %s \"<name>\" \"<url>\"", cmd.name)
