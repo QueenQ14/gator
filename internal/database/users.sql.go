@@ -48,6 +48,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 }
 
 const deleteUsers = `-- name: DeleteUsers :exec
+
 DELETE FROM users
 `
 
@@ -57,6 +58,7 @@ func (q *Queries) DeleteUsers(ctx context.Context) error {
 }
 
 const getUser = `-- name: GetUser :one
+
 SELECT id, created_at, updated_at, name FROM users
 WHERE name = $1
 `
@@ -74,6 +76,7 @@ func (q *Queries) GetUser(ctx context.Context, name string) (User, error) {
 }
 
 const getUserByID = `-- name: GetUserByID :one
+
 SELECT id, created_at, updated_at, name FROM users
 WHERE id = $1
 `
@@ -91,6 +94,7 @@ func (q *Queries) GetUserByID(ctx context.Context, id uuid.UUID) (User, error) {
 }
 
 const getUsers = `-- name: GetUsers :many
+
 SELECT id, created_at, updated_at, name FROM users
 `
 

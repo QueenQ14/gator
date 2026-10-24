@@ -11,7 +11,7 @@ import (
 
 func handlerLogin(s *state, cmd command) error {
 	if len(cmd.args) != 1 {
-		return fmt.Errorf("please enter a valid username")
+		return fmt.Errorf("Usage: %s <user>", cmd.name)
 	}
 	val, err := s.db.GetUser(context.Background(), cmd.args[0])
 	if err != nil {
@@ -27,7 +27,7 @@ func handlerLogin(s *state, cmd command) error {
 
 func handlerRegister(s *state, cmd command) error {
 	if len(cmd.args) != 1 {
-		return fmt.Errorf("please provide a name")
+		return fmt.Errorf("Usage: %s <user>", cmd.name)
 	}
 	name := cmd.args[0]
 	params := database.CreateUserParams{

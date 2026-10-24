@@ -57,6 +57,7 @@ func (q *Queries) CreateFeed(ctx context.Context, arg CreateFeedParams) (Feed, e
 }
 
 const getFeedByUrl = `-- name: GetFeedByUrl :one
+
 SELECT id, created_at, updated_at, name, url, user_id, last_fetched_at FROM feeds
 WHERE url = $1
 `
@@ -77,6 +78,7 @@ func (q *Queries) GetFeedByUrl(ctx context.Context, url string) (Feed, error) {
 }
 
 const getFeeds = `-- name: GetFeeds :many
+
 SELECT id, created_at, updated_at, name, url, user_id, last_fetched_at FROM feeds
 `
 
@@ -132,6 +134,7 @@ func (q *Queries) GetNextFeedToFetch(ctx context.Context) (Feed, error) {
 }
 
 const markFeedFetched = `-- name: MarkFeedFetched :exec
+
 UPDATE feeds
 SET
     last_fetched_at = CURRENT_TIMESTAMP,

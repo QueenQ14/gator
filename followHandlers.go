@@ -12,7 +12,7 @@ import (
 
 func handlerFollow(s *state, cmd command, user database.User) error {
 	if len(cmd.args) != 1 {
-		return fmt.Errorf("please enter valid arguments")
+		return fmt.Errorf("Usage: %s <url>", cmd.name)
 	}
 	url := cmd.args[0]
 	feed, err := s.db.GetFeedByUrl(context.Background(), url)
@@ -49,7 +49,7 @@ func handlerFollowing(s *state, cmd command, user database.User) error {
 
 func handlerUnfollow(s *state, cmd command, user database.User) error {
 	if len(cmd.args) != 1 {
-		return fmt.Errorf("please enter valid arguments")
+		return fmt.Errorf("Usage: %s <url>", cmd.name)
 	}
 	feedURL := cmd.args[0]
 	feed, err := s.db.GetFeedByUrl(context.Background(), feedURL)

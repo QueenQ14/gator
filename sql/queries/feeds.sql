@@ -9,13 +9,16 @@ VALUES (
     $6
 )
 RETURNING *;
+--
 
 -- name: GetFeeds :many
 SELECT * FROM feeds;
+--
 
 -- name: GetFeedByUrl :one
 SELECT * FROM feeds
 WHERE url = $1;
+--
 
 -- name: MarkFeedFetched :exec
 UPDATE feeds
@@ -28,3 +31,4 @@ WHERE
 -- name: GetNextFeedToFetch :one
 SELECT * FROM feeds
 ORDER BY last_fetched_at ASC NULLS FIRST;
+--
