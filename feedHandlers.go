@@ -6,18 +6,23 @@ import (
 	"time"
 
 	"github.com/QueenQ14/gator/internal/database"
-	"github.com/QueenQ14/gator/internal/rss"
 	"github.com/google/uuid"
 )
 
 func handlerAggregator(s *state, cmd command) error {
-	feedURL := "https://www.wagslane.dev/index.xml"
-	feed, err := rss.FetchFeed(context.Background(), feedURL)
-	if err != nil {
-		return err
+	if len(cmd.args) != 1 {
+		return fmt.Errorf("please enter valid arguments")
 	}
-	fmt.Printf("Feed: %v\n", feed)
-	return nil
+	time_between_reqs := cmd.args[0]
+	timeBetweenRequests, err := time.ParseDuration(time_between_reqs)
+	if err != nil {
+		return fmt.Errorf("please enter valid time value: %v", err)
+	}
+	ticker := time.NewTicker(timeBetweenRequests)
+	fmt.Printf("Collecting feeds every %v...\n", timeBetweenRequests)
+	for ; ; <-ticker.C {
+		scrapeFeeds(s)
+	}
 }
 
 func handlerAddfeed(s *state, cmd command, user database.User) error {
@@ -62,7 +67,7 @@ func handlerListFeeds(s *state, cmd command) error {
 		if err != nil {
 			return fmt.Errorf("error retrieving user for feed: %v", feed.Name)
 		}
-		printfeed(feed, user)
+		printFeed(feed, user)
 	}
 	return nil
 }
