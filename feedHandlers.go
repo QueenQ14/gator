@@ -20,23 +20,19 @@ func handlerAggregator(s *state, cmd command) error {
 	return nil
 }
 
-func handlerAddfeed(s *state, cmd command) error {
+func handlerAddfeed(s *state, cmd command, user database.User) error {
 	if len(cmd.args) != 2 {
 		return fmt.Errorf("please enter valid arguments")
 	}
 	title := cmd.args[0]
 	feedURL := cmd.args[1]
-	current_user, err := s.db.GetUser(context.Background(), s.Config.UserName)
-	if err != nil {
-		return fmt.Errorf("error fetching user: %v", err)
-	}
 	params := database.CreateFeedParams{
 		ID:        uuid.New(),
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 		Name:      title,
 		Url:       feedURL,
-		UserID:    current_user.ID,
+		UserID:    user.ID,
 	}
 	feed, err := s.db.CreateFeed(context.Background(), params)
 	if err != nil {
@@ -46,7 +42,7 @@ func handlerAddfeed(s *state, cmd command) error {
 		ID:        uuid.New(),
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
-		UserID:    current_user.ID,
+		UserID:    user.ID,
 		FeedID:    feed.ID,
 	})
 	if err != nil {

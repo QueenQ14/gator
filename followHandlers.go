@@ -10,7 +10,7 @@ import (
 	"github.com/QueenQ14/gator/internal/database"
 )
 
-func handlerFollow(s *state, cmd command) error {
+func handlerFollow(s *state, cmd command, user database.User) error {
 	if len(cmd.args) != 1 {
 		return fmt.Errorf("please enter valid arguments")
 	}
@@ -18,10 +18,6 @@ func handlerFollow(s *state, cmd command) error {
 	feed, err := s.db.GetFeedByUrl(context.Background(), url)
 	if err != nil {
 		return fmt.Errorf("error fetching feed: %v", err)
-	}
-	user, err := s.db.GetUser(context.Background(), s.Config.UserName)
-	if err != nil {
-		return fmt.Errorf("error fetching user: %v", err)
 	}
 
 	params := database.CreateFeedFollowParams{
@@ -39,12 +35,7 @@ func handlerFollow(s *state, cmd command) error {
 	return nil
 }
 
-func handlerFollowing(s *state, cmd command) error {
-	user, err := s.db.GetUser(context.Background(), s.Config.UserName)
-	if err != nil {
-		return fmt.Errorf("error fetching user: %v", err)
-	}
-
+func handlerFollowing(s *state, cmd command, user database.User) error {
 	rows, err := s.db.GetFeedFollowsForUser(context.Background(), user.ID)
 	if err != nil {
 		return fmt.Errorf("error fetching from feed-follow: %v", err)
