@@ -40,9 +40,31 @@ func handlerFollowing(s *state, cmd command, user database.User) error {
 	if err != nil {
 		return fmt.Errorf("error fetching from feed-follow: %v", err)
 	}
-	fmt.Println(user.Name, "is following:")
+	fmt.Println(user.Name, "is following", len(rows), "feeds")
 	for _, row := range rows {
 		fmt.Println(" * ", row.FeedName)
 	}
+	return nil
+}
+
+func handlerUnfollow(s *state, cmd command, user database.User) error {
+	if len(cmd.args) != 1 {
+		return fmt.Errorf("please enter valid arguments")
+	}
+	feedURL := cmd.args[0]
+	feed, err := s.db.GetFeedByUrl(context.Background(), feedURL)
+	if err != nil {
+		return fmt.Errorf("error fetching feed: %v", err)
+	}
+
+	params := database.DeleteFeedFollowForUserFeedParams{
+		UserID: user.ID,
+		FeedID: feed.ID,
+	}
+	err = s.db.DeleteFeedFollowForUserFeed(context.Background(), params)
+	if err != nil {
+		return fmt.Errorf("error unfollowing feed: %v", err)
+	}
+	fmt.Println(user.Name, "has successfully unfollowed feed:", feed.Name)
 	return nil
 }
