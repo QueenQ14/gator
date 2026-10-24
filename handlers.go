@@ -8,6 +8,7 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/QueenQ14/gator/internal/database"
+	"github.com/QueenQ14/gator/internal/rss"
 )
 
 func handlerLogin(s *state, cmd command) error {
@@ -66,5 +67,15 @@ func handlerUsers(s *state, cmd command) error {
 		}
 		fmt.Println(user_str)
 	}
+	return nil
+}
+
+func handlerAggregator(s *state, cmd command) error {
+	feedURL := "https://www.wagslane.dev/index.xml"
+	feed, err := rss.FetchFeed(context.Background(), feedURL)
+	if err != nil {
+		return err
+	}
+	fmt.Printf("Feed: %v\n", feed)
 	return nil
 }
