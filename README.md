@@ -89,3 +89,7 @@ Here are the comprehensive list of commands that are available in Gator:
 * `gator browse <limit>`: Browse all the posts from the feeds that the user is following.
 * `gator reset`: Resets the user database; use this only if you want to clear ALL data.
 * `gator agg <time>`: Aggregates posts from the following feeds at given frequency. Time can be specified in the formats of `s/m/h`.
+
+## Credits
+This project was completed as part of the Backend Development Path on [Boot.Dev](https://www.boot.dev).
+If you want to build this project by yourself while getting amazing guidance which improves your coding check the website out!
