@@ -82,6 +82,7 @@ Here are the comprehensive list of commands that are available in Gator:
 * `gator login <user>`: Logs in as the user(if they exist).
 * `gator users` : Lists all the users available.
 * `gator addfeed <name> <url>`: Adds the feed as the current user.
+* `gator delfeed <url>`: Deletes the feed entry for all users.
 * `gator follow <feed_url>`: Current user will now follow the feed.
 * `gator following`: Lists all the feeds that the current user is following.
 * `gator unfollow <feed_url>`: Unfollow from specified feed URL.
