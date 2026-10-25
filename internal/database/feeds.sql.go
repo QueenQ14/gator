@@ -56,6 +56,20 @@ func (q *Queries) CreateFeed(ctx context.Context, arg CreateFeedParams) (Feed, e
 	return i, err
 }
 
+const deleteFeedByUrl = `-- name: DeleteFeedByUrl :execrows
+
+DELETE FROM feeds
+WHERE url = $1
+`
+
+func (q *Queries) DeleteFeedByUrl(ctx context.Context, url string) (int64, error) {
+	result, err := q.db.ExecContext(ctx, deleteFeedByUrl, url)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected()
+}
+
 const getFeedByUrl = `-- name: GetFeedByUrl :one
 
 SELECT id, created_at, updated_at, name, url, user_id, last_fetched_at FROM feeds

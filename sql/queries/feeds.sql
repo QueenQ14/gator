@@ -20,6 +20,11 @@ SELECT * FROM feeds
 WHERE url = $1;
 --
 
+-- name: DeleteFeedByUrl :execrows
+DELETE FROM feeds
+WHERE url = $1;
+--
+
 -- name: MarkFeedFetched :exec
 UPDATE feeds
 SET

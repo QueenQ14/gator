@@ -41,6 +41,22 @@ func handlerAddfeed(s *state, cmd command, user database.User) error {
 	return nil
 }
 
+func handlerDelFeed(s *state, cmd command, user database.User) error {
+	if len(cmd.args) != 1 {
+		return fmt.Errorf("Usage: %s <feed_url>", cmd.name)
+	}
+	url := cmd.args[0]
+	rowsAffected, err := s.db.DeleteFeedByUrl(context.Background(), url)
+	if err != nil {
+		return fmt.Errorf("error deleting feed: %v", err)
+	}
+	if rowsAffected == 0 {
+		return fmt.Errorf("feed '%s' does not exist", url)
+	}
+	fmt.Printf("feed '%s' has been deleted successfully\n", url)
+	return nil
+}
+
 func handlerListFeeds(s *state, cmd command) error {
 	feeds, err := s.db.GetFeeds(context.Background())
 	if err != nil {

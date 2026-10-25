@@ -25,6 +25,7 @@ func registerAllCommands(cmds *commands) {
 	cmds.register("users", handlerUsers)
 	cmds.register("agg", handlerAggregator)
 	cmds.register("addfeed", middlewareLoggedIn(handlerAddfeed))
+	cmds.register("delfeed", middlewareLoggedIn(handlerDelFeed))
 	cmds.register("feeds", handlerListFeeds)
 	cmds.register("follow", middlewareLoggedIn(handlerFollow))
 	cmds.register("following", middlewareLoggedIn(handlerFollowing))
