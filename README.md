@@ -86,9 +86,9 @@ Here are the comprehensive list of commands that are available in Gator:
 * `gator following`: Lists all the feeds that the current user is following.
 * `gator unfollow <feed_url>`: Unfollow from specified feed URL.
 * `gator feeds`: Lists all the Feeds that are available.
-* `gator browse <limit>`: Browse all the posts from the feeds that the user is following.
+* `gator browse [limit]`: Browse all the posts from the feeds that the user is following. Limit is an optional argument(default is 3) that limits how many posts are shown at a time in a page. You can use the `n`, `p` and `q` commands to move next, previous across the pages and exit respectively.
 * `gator reset`: Resets the user database; use this only if you want to clear ALL data.
-* `gator agg <time>`: Aggregates posts from the following feeds at given frequency. Time can be specified in the formats of `s/m/h`.
+* `gator agg <time> [num of workers]`: Aggregates posts from the following feeds at given frequency. Time can be specified in the formats of `s/m/h`. Number of workers are defined for concurrency on aggregation. Default value is 3.
 
 ## Credits
 This project was completed as part of the Backend Development Path on [Boot.Dev](https://www.boot.dev).
